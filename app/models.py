@@ -1,3 +1,4 @@
+from app.identity import make_test_id
 from dataclasses import dataclass
 from typing import Optional
 
@@ -12,4 +13,4 @@ class CaseResult:
 
     @property
     def test_id(self) -> str:
-        return f"{self.classname}::{self.name}"
+        return make_test_id(self.classname, self.name)
