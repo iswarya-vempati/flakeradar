@@ -17,4 +17,27 @@ def add_run(
     )
     conn.commit()
     return cursor.lastrowid
-    
+
+
+def add_results(
+        conn: sqlite3.Connection, run_id: int, results: list[CaseResult]
+) -> None:
+    rows = [
+        (
+            run_id,
+            r.test_id,
+            r.classname,
+            r.name,
+            r.outcome,
+            r.duration,
+            r.message,
+        )
+        for r in results
+    ]
+    conn.executemany(
+        "INSERT INTO results "
+        "(run_id, test_id, classname, name, outcome, duration, message) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        rows,
+    )
+    conn.commit()
