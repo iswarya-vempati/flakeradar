@@ -41,3 +41,16 @@ def add_results(
         rows,
     )
     conn.commit()
+
+def get_history(conn: sqlite3.Connection, test_id: str) -> list[sqlite3.Row]:
+    return conn.execute(
+        """
+        SELECT results.outcome, results.duration,
+               runs.commit_sha, runs.created_at
+        FROM results
+        JOIN runs ON runs.id = results.run_id
+        WHERE results.test_id = ?
+        ORDER BY runs.id
+        """,
+        (test_id,),
+    ).fetchall()
