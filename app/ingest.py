@@ -14,12 +14,12 @@ def file_hash(path: Path) -> str:
 
 
 def ingest_report(
-        conn: sqlite3.Connection,
-        path: Path,
-        commit_sha: str,
-        python_version: Optional[str] = None,
-        os_name: Optional[str] = None,
-        attempt: int = 1,
+    conn: sqlite3.Connection,
+    path: Path,
+    commit_sha: str,
+    python_version: Optional[str] = None,
+    os_name: Optional[str] = None,
+    attempt: int = 1,
 ) -> Optional[int]:
     report_hash = file_hash(path)
     if run_exists(conn, report_hash):
