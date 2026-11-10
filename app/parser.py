@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from app.models import CaseResult
 
 
-def parse_junit_xml(path:str) -> list[CaseResult]:
+def parse_junit_xml(path: str) -> list[CaseResult]:
     root = ET.parse(path).getroot()
     results = []
     for case in root.iter("testcase"):
@@ -23,11 +23,11 @@ def parse_junit_xml(path:str) -> list[CaseResult]:
             message = skipped.get("message")
         results.append(
             CaseResult(
-                classname = case.get("classname", ""),
-                name = case.get("name", ""),
-                outcome = outcome,
-                duration = float(case.get("time", 0)),
-                message = message,
+                classname=case.get("classname", ""),
+                name=case.get("name", ""),
+                outcome=outcome,
+                duration=float(case.get("time", 0)),
+                message=message,
             )
         )
     return results
