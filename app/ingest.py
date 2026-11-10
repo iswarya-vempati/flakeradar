@@ -33,3 +33,24 @@ def ingest_report(
     )
     add_results(conn, run_id, results)
     return run_id
+
+
+def ingest_folder(
+    conn: sqlite3.Connection,
+    folder: Path,
+    commit_sha: str,
+    python_version: Optional[str] = None,
+    os_name: Optional[str] = None,
+) -> tuple [int, int]:
+    loaded = 0
+    skipped = 0
+    paths = sorted(folder.glob("*.xml"), key=lambda p: p.stat().st_mtime)
+    for number, path in enumerate(paths, start=1):
+        run_id = ingest_report(
+            conn, path, commit_sha, python_version, os_name, attempt=number
+        )
+        if run_id is None:
+            skipped += 1
+        else:
+            loaded += 1
+    return loaded, skipped
