@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS runs (
     python_version TEXT,
     os TEXT,
     attempt INTEGER NOT NULL DEFAULT 1,
+    report_hash TEXT UNIQUE,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
