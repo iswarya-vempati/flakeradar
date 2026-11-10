@@ -1,9 +1,11 @@
+import argparse
 import hashlib
 import sqlite3
 from pathlib import Path
 from typing import Optional
 
 from app.parser import parse_junit_xml
+from app.db import connect, init_db
 from app.repository import add_results, add_run, run_exists
 
 
@@ -54,3 +56,26 @@ def ingest_folder(
         else:
             loaded += 1
     return loaded, skipped
+
+
+def main() -> None:
+    cli = argparse.ArgumentParser(
+        description="Load JUnit XML reports into the FlakeRadar database"
+    )
+    cli.add_argument("folder", help="folder containing .xml report files")
+    cli.add_argument("--commit", required=True, help="commit id of the tested code")
+    cli.add_argument("--db", default="flakeradar.db", help="database file")
+    cli.add_argument("--python-version", default=None, help="Python version used")
+    cli.add_argument("--os", default=None, help="operating system used")
+    args = cli.parse_args()
+
+    conn = connect(args.db)
+    init_db(conn)
+    loaded, skipped = ingest_folder(
+        conn, Path(args.folder), args.commit, args.python_version, args.os
+    )
+    print(f"Loaded {loaded} report(s), skipped {skipped} already loaded.")
+
+
+if __name__ == "__main__":
+    main()
