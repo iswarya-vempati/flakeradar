@@ -10,11 +10,12 @@ def add_run(
     python_version: Optional[str] = None,
     os_name: Optional[str] = None,
     attempt: int = 1,
+    report_hash: Optional[str] = None,
 ) -> int:
     cursor = conn.execute(
-        "INSERT INTO runs (commit_sha, python_version, os, attempt) "
-        "VALUES (?, ?, ?, ?)",
-        (commit_sha, python_version, os_name, attempt),  
+        "INSERT INTO runs (commit_sha, python_version, os, attempt, report_hash) "
+        "VALUES (?, ?, ?, ?, ?)",
+        (commit_sha, python_version, os_name, attempt, report_hash),  
     )
     conn.commit()
     return cursor.lastrowid
@@ -55,3 +56,10 @@ def get_history(conn: sqlite3.Connection, test_id: str) -> list[sqlite3.Row]:
         """,
         (test_id,),
     ).fetchall()
+
+
+def run_exists(conn: sqlite3.Connection, report_hash: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM runs WHERE report_hash = ?", (report_hash,)
+    ).fetchone()
+    return row is not None

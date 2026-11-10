@@ -53,3 +53,10 @@ def test_history_is_in_run_order():
     )
     rows = get_history(conn, "tests.test_a::test_x")
     assert [row["outcome"] for row in rows] == ["passed", "failed"]
+
+
+def test_report_hash_must_be_unique():
+    conn = make_conn()
+    add_run(conn, commit_sha="a1", report_hash="abc")
+    with pytest.raises(sqlite3.IntegrityError):
+        add_run(conn, commit_sha="a1", report_hash="abc")
