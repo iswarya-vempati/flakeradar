@@ -5,21 +5,20 @@ CREATE TABLE IF NOT EXISTS runs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     commit_sha TEXT NOT NULL,
     python_version TEXT,
-    os_name TEXT,
+    os TEXT,
     attempt INTEGER NOT NULL DEFAULT 1,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    run_id INTEGER NOT NULL,
+    run_id INTEGER NOT NULL REFERENCES runs(id),
     test_id TEXT NOT NULL,
     classname TEXT NOT NULL,
     name TEXT NOT NULL,
     outcome TEXT NOT NULL,
     duration REAL NOT NULL,
-    message TEXT,
-    FOREIGN KEY (run_id) REFERENCES runs (id)
+    message TEXT
 );
 """
 

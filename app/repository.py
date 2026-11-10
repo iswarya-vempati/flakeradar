@@ -3,6 +3,7 @@ from typing import Optional
 
 from app.models import CaseResult
 
+
 def add_run(
     conn: sqlite3.Connection,
     commit_sha: str,
@@ -20,7 +21,7 @@ def add_run(
 
 
 def add_results(
-        conn: sqlite3.Connection, run_id: int, results: list[CaseResult]
+    conn: sqlite3.Connection, run_id: int, results: list[CaseResult]
 ) -> None:
     rows = [
         (
