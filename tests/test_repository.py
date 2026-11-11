@@ -4,7 +4,7 @@ import pytest
 
 from app.db import connect, init_db
 from app.models import CaseResult
-from app.repository import add_results, add_run, get_history
+from app.repository import add_results, add_run, get_history, list_test_ids
 
 
 def make_conn():
@@ -37,6 +37,8 @@ def test_results_can_be_read_back_as_history():
     assert len(history) == 1
     assert history[0]["outcome"] == "passed"
     assert history[0]["commit_sha"] == "a1"
+    assert history[0]["python_version"] == "3.9.6"
+    assert history[0]["os"] == "Windows"
 
 
 def test_history_is_in_run_order():
@@ -60,3 +62,12 @@ def test_report_hash_must_be_unique():
     add_run(conn, commit_sha="a1", report_hash="abc")
     with pytest.raises(sqlite3.IntegrityError):
         add_run(conn, commit_sha="a1", report_hash="abc")
+
+
+def test_list_test_ids_returns_each_test_once():
+    conn = make_conn()
+    for _ in range(2):
+        run_id = add_run(conn, commit_sha="a1")
+        case = CaseResult("tests.test_a", "test_x", "passed", 0.01)
+        add_results(conn, run_id, [case])
+    assert list_test_ids(conn) == ["tests.test_a::test_x"]
