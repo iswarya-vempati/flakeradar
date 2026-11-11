@@ -48,7 +48,7 @@ def get_history(conn: sqlite3.Connection, test_id: str) -> list[sqlite3.Row]:
     return conn.execute(
         """
         SELECT results.outcome, results.duration,
-               runs.commit_sha, runs.created_at
+               runs.commit_sha, runs.python_version, runs.os, runs.created_at
         FROM results
         JOIN runs ON runs.id = results.run_id
         WHERE results.test_id = ?
@@ -63,3 +63,10 @@ def run_exists(conn: sqlite3.Connection, report_hash: str) -> bool:
         "SELECT 1 FROM runs WHERE report_hash = ?", (report_hash,)
     ).fetchone()
     return row is not None
+
+
+def list_test_ids(conn: sqlite3.Connection) -> list[str]:
+    rows = conn.execute(
+        "SELECT DISTINCT test_id FROM results ORDER BY test_id"
+    ).fetchall()
+    return [row["test_id"] for row in rows]
