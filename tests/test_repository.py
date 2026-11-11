@@ -64,7 +64,7 @@ def test_report_hash_must_be_unique():
         add_run(conn, commit_sha="a1", report_hash="abc")
 
 
-def test_list_ids_returns_each_test_once():
+def test_list_test_ids_returns_each_test_once():
     conn = make_conn()
     for _ in range(2):
         run_id = add_run(conn, commit_sha="a1")
