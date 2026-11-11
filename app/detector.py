@@ -52,7 +52,7 @@ def analyze(test_id: str, rows: list) -> Finding:
         evidence = f"Only {runs} run(s) so far. At least {MIN_RUNS} are needed."
     elif failures == 0:
         verdict = "stable"
-        evidence = f"Passed in a;; {runs} runs."
+        evidence = f"Passed in all {runs} runs."
     elif failures == runs:
         verdict = "always_failing"
         evidence = f"Failed in all {runs} runs, so it looks broken, not flaky."
@@ -71,7 +71,22 @@ def analyze(test_id: str, rows: list) -> Finding:
         runs=runs,
         failures=failures,
         transitions=transitions,
-        inconsistent_froups=inconsistent,
+        inconsistent_groups=inconsistent,
         verdict=verdict,
         evidence=evidence,
+    )
+
+
+def analyze_all(conn: sqlite3.Connection) -> list[Finding]:
+    findings = [
+        analyze(test_id, get_history(conn, test_id))
+        for test_id in list_test_ids(conn)
+    ]
+    return sorted(
+        findings,
+        key=lambda finding: (
+            VERDICT_ORDER[finding.verdict],
+            -finding.failures,
+            finding.test_id,
+        ),
     )
