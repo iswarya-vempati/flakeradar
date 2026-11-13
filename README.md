@@ -60,3 +60,12 @@ We measure how many of its flags are wrong (false alarms) and say so openly.
 You can explain every design decision and its trade-offs.
 
 What you’ll learn by building it: working with a database, building an API, handling messy real data, basic statistics, testing, and deploying a project, all of which appear in placement interviews.
+
+
+## How to use
+
+1. Put yout JUnit XML reports in a folder.
+2. Load them into the database:
+   python -m app.ingest path/to/reports --commit abc123
+3. See which tests looks flaky:
+   python -m app.report
