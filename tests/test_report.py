@@ -55,7 +55,7 @@ def test_empty_database_gives_a_clear_message():
 def test_report_shows_numbers_and_evidence():
     findings = [
         make_finding("t::flaky_one", "flaky"),
-        make_finding("t::stable_one", "stable", failures=0, transition=0),
+        make_finding("t::stable_one", "stable", failures=0, transitions=0),
     ]
     text = format_report(findings)
     assert "Tests analyzed: 2" in text
