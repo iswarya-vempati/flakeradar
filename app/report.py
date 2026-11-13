@@ -1,6 +1,9 @@
+import argparse
+from pathlib import Path
 from collections import Counter
 
-from app.detector import VERDICT_ORDER, Finding
+from app.detector import VERDICT_ORDER, Finding, analyze_all
+from app.db import connect, init_db
 
 ATTENTION = {"flaky", "suspicious"}
 
@@ -46,3 +49,25 @@ def format_report(
     lines.append("")
     lines.append("These verdicts are evidence-based hints, not proof.")
     return "\n".join(lines)
+
+
+def main() -> None:
+    cli = argparse.ArgumentParser(description="Show which tests look flaky")
+    cli.add_argument("--db", default="flakeradar.db", help="database file")
+    cli.add_argument("--top", type=int, default=10, help="how many tests to show")
+    cli.add_argument(
+        "--all", action="store_true", help="show every test, not only flaky ones"
+    )
+    args = cli.parse_args()
+
+    if not Path(args.db).exists():
+        print(f"Database file not found: {args.db}")
+        return
+
+    conn = connect(args.db)
+    init_db(conn)
+    print(format_report(analyze_all(conn), top=args.top, show_all=args.all))
+
+
+if __name__ == "__main__":
+    main()
