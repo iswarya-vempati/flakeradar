@@ -5,8 +5,9 @@ from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException, Query
 
 from app.db import connect, init_db
-from app.detector import VERDICT_ORDER, analyze_all
-from app.schemas import FindingOut
+from app.repository import get_history
+from app.detector import VERDICT_ORDER, analyze, analyze_all
+from app.schemas import FindingDetail, FindingOut
 
 app = FastAPI(title="FlakeRadar")
 
@@ -38,3 +39,13 @@ def list_tests(
     if verdict is not None:
         findings = [f for f in findings if f.verdict == verdict]
     return [asdict(f) for f in findings[:limit]]
+
+
+@app.get("/tests/{test_id:path}", response_model=FindingDetail)
+def get_test(test_id: str, conn=Depends(get_conn)):
+    rows = get_history(conn, test_id)
+    if not rows:
+        raise HTTPException(status_code=404, detail=f"No results for test: {test_id}")
+    finding = analyze(test_id, rows)
+    history = [dict(row) for row in rows]
+    return {**asdict(finding), "history": history}
