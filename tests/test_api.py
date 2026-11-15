@@ -79,3 +79,23 @@ def test_unknown_test_gives_404(conn):
     seed(conn)
     response = client.get("/tests/tests.test_a::does_not_exist")
     assert response.status_code == 404
+
+
+def test_report_is_plain_text(conn):
+    seed(conn)
+    response = client.get("/report")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/plain")
+    assert "[FLAKY] tests.test_a::test_flaky" in response.text
+
+
+def test_report_on_empty_database_says_so(conn):
+    response = client.get("/report")
+    assert "No test results" in response.text
+
+
+def test_missing_database_gives_503(tmp_path, monkeypatch):
+    monkeypatch.setenv("FLAKERADAR.DB", str(tmp_path / "nope.db"))
+    response = client.get("/tests")
+    assert response.status_code == 503
+    assert "Database file not found" in response.json()["detail"]
