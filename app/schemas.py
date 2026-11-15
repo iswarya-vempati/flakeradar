@@ -7,7 +7,7 @@ class FindingOut(BaseModel):
     test_id: str
     runs: int
     failures: int
-    transitions: str
+    transitions: int
     inconsistent_groups: int
     verdict: str
     evidence: str
