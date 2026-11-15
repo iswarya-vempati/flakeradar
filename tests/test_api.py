@@ -62,4 +62,20 @@ def test_limit_must_be_at_leat_one(conn):
 def test_empty_database_gives_an_empty_list(conn):
     response = client.get("/tests")
     assert response.status_code == 200
-    assert response.json() == []    
+    assert response.json() == []  
+
+
+def test_one_test_includes_its_history(conn):
+    seed(conn)
+    response = client.get("/tests/tests.test_a::test_flaky")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["verdict"] == "flaky"
+    outcomes = [item["outcome"] for item in data["history"]]
+    assert outcomes == ["passed", "failed", "passed", "failed", "passed"]
+
+
+def test_unknown_test_gives_404(conn):
+    seed(conn)
+    response = client.get("/tests/tests.test_a::does_not_exist")
+    assert response.status_code == 404
