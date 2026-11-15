@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS results (
 
 
 def connect (path: str = "flakeradar.db") -> sqlite3.Connection:
-    conn = sqlite3.connect(path)
+    conn = sqlite3.connect(path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn

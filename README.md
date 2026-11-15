@@ -69,3 +69,25 @@ What you’ll learn by building it: working with a database, building an API, ha
    python -m app.ingest path/to/reports --commit abc123
 3. See which tests looks flaky:
    python -m app.report
+
+
+## API
+FlakeRadar provides a REST API using FasrAPI. it allows other programs and browsers to access test results, check flaky tests, and view reports.
+
+### Start the API server
+Point the API to your database using FLAKERADAR_DB, then run: 
+```bash
+uvicorn app.main:app --reload
+```
+
+### Available Endpoints
+GET /health - Checks whether the API is running, Returns {"status": "ok"}
+GET /tests - Returns all tests with their verdicts, showing flaky tests first. Supports verdict and limit filters.
+GET /tests/{test_id} - Returns the verdict, evidence, and execution history of a specific test.
+GET /report - Returns the test results as a plain-text report.
+
+### Interactive API Documentation
+Open `http://127.0.0.1:8000/docs` in your browser to explore and test all available API endpoints.
+
+### Important Note
+FlakeRadar's flaky verdicts are indicators of inconsistent test behaviour, not absolute proof that a test is flaky. The results should be reviewed along with their execution history and evidence.
