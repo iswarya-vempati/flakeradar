@@ -95,7 +95,7 @@ def test_report_on_empty_database_says_so(conn):
 
 
 def test_missing_database_gives_503(tmp_path, monkeypatch):
-    monkeypatch.setenv("FLAKERADAR.DB", str(tmp_path / "nope.db"))
+    monkeypatch.setenv("FLAKERADAR_DB", str(tmp_path / "nope.db"))
     response = client.get("/tests")
     assert response.status_code == 503
     assert "Database file not found" in response.json()["detail"]

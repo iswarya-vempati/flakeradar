@@ -1,19 +1,24 @@
 import os
 from dataclasses import asdict
 from typing import Optional
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.responses import PlainTextResponse
 
 from app.db import connect, init_db
 from app.repository import get_history
 from app.detector import VERDICT_ORDER, analyze, analyze_all
 from app.schemas import FindingDetail, FindingOut
+from app.report import format_report
 
 app = FastAPI(title="FlakeRadar")
 
 
 def get_conn():
-    path = os.environ.get("FLAKERADR_DB", "flakeradar.db")
+    path = os.environ.get("FLAKERADAR_DB", "flakeradar.db")
+    if not Path(path).exists():
+        raise HTTPException(status_code=503, detail=f"Database file not found: {path}")
     conn = connect(path)
     try:
         init_db(conn)
@@ -49,3 +54,12 @@ def get_test(test_id: str, conn=Depends(get_conn)):
     finding = analyze(test_id, rows)
     history = [dict(row) for row in rows]
     return {**asdict(finding), "history": history}
+
+
+@app.get("/report", response_class=PlainTextResponse)
+def report(
+    top: int = Query(10, ge=1, le=500),
+    show_all: bool = False,
+    conn=Depends(get_conn),
+):
+    return format_report(analyze_all(conn), top=top, show_all=show_all)
